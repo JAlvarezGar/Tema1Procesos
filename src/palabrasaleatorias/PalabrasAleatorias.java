@@ -1,9 +1,13 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package palabrasaleatorias;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.channels.FileLock;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -11,7 +15,7 @@ package palabrasaleatorias;
  */
 public class PalabrasAleatorias {
 
-      
+      public static String OTRA_LINEA = System.clearProperty("line.separator");
 
     /**
      * @param args the command line arguments
@@ -21,7 +25,8 @@ public class PalabrasAleatorias {
         int numeroPalabras=0;
         int numeroLetras=0;
         String palabra="";
-        String nombreFichero;
+        String nombreFichero="";
+        
            // Si tenemos un argumento, el primero es el número de palabras a generar
         if (args.length > 0) {
             numeroPalabras = Integer.parseInt(args[0]);
@@ -30,6 +35,7 @@ public class PalabrasAleatorias {
         }
         //Identificamos el sistema operativo
         String osName = System.getProperty("os.name");
+        System.out.println(osName);
         
         if (osName.toUpperCase().contains("WIN")) { 
             //Windows
@@ -38,7 +44,7 @@ public class PalabrasAleatorias {
                  nombreFichero = args[1].replace("\\", "\\\\");
             } 
             else {
-                 nombreFichero = ".\\lenguaje.txt";
+                 nombreFichero = "\\lenguaje.txt";
                 //Fichero si se omite el deseado
             }
         } else { 
@@ -53,7 +59,10 @@ public class PalabrasAleatorias {
             }
         }
         
-        //System.out.println(numeroLetras);
+        File fichero = new File(nombreFichero);
+        try {
+            FileOutputStream fos = new FileOutputStream(fichero,true);
+                 //System.out.println(numeroLetras);
         for (int j = 0; j < numeroPalabras; j++) {
             
             palabra="";
@@ -71,10 +80,26 @@ public class PalabrasAleatorias {
             
             
         }
+              
+                try {
+                    FileLock bloqueo = fos.getChannel().lock();
+                    fos.write(palabra.getBytes());
+                    fos.write(OTRA_LINEA.getBytes());
+                    // DESBLOQUEO 
+                    bloqueo.release();
+                    
+                } catch (IOException ex) {
+                    Logger.getLogger(PalabrasAleatorias.class.getName()).log(Level.SEVERE, null, ex);
+                }
         System.out.println(palabra);
         
             
         }
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(PalabrasAleatorias.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+   
       
 
     }
